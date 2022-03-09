@@ -1,14 +1,19 @@
 /**
  * Returns audio frequency data for the given audio file.
- * @param {string} audioFile
+ * @param {string} audioFile Path to audio file.
+ * @param {{
+ *     sampleTimeLength: number,
+ *     fftSize: number,
+ *     }=} options
  * @return {!Promise<!Array<!Uint8Array>>}  an array of frequency samples;
  *     each sample is a normalized array of decibel values between 0 and 255.
  *     The frequencies are spread linearly from 0 to 1/2 of the sample rate.
  */
-async function getAudioFrequencyData(audioFile) {
-  const sampleTimeLength = 1/60;
+async function getAudioFrequencyData(audioFile,
+    {sampleTimeLength = 1/60,
+      fftSize = 2 ** 11} = {}) {
   const audioContext = new AudioContext();
-  return fetch(audioFile).then((response) => response.arrayBuffer)
+  return fetch(audioFile).then((response) => response.arrayBuffer())
       .then(async (buffer) => {
         const decodedData = await audioContext.decodeAudioData(buffer,
             (decodedData) => decodedData);
@@ -21,7 +26,6 @@ async function getAudioFrequencyData(audioFile) {
 
         const analyser = offlineContext.createAnalyser();
         audioBufferSource.connect(analyser);
-        const fftSize = 2 ** 11;
         const numSamples = Math.floor(
             audioBufferSource.buffer.duration / sampleTimeLength);
         analyser.fftSize = fftSize;
@@ -32,11 +36,6 @@ async function getAudioFrequencyData(audioFile) {
         for (let i = 0; i < numSamples; i++) {
           frequencyData[i] = new Uint8Array(frequencyBinCount);
         }
-
-        // Fill array
-        (sampleIndex) => {
-          analyser.getByteFrequencyData(frequencyData[sampleIndex]);
-        };
 
         return new Promise((resolve) => {
           for (let frameIndex = 0; frameIndex < numSamples; frameIndex++) {
