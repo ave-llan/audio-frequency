@@ -1,0 +1,19 @@
+{
+  "name": "audio-frequency",
+  "version": "1.0.0",
+  "description": "Gets audio frequency for an entire audio file as fast as possible, without the need for playback",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "audio",
+    "frequency",
+    "sound",
+    "analysis",
+    "fft",
+    "web-audio"
+  ],
+  "author": "John Leszczynski",
+  "license": "ISC"
+}
