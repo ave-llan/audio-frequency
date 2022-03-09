@@ -15,5 +15,9 @@
     "web-audio"
   ],
   "author": "John Leszczynski",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.10.0",
+    "eslint-config-google": "^0.14.0"
+  }
 }
