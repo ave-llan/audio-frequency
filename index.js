@@ -5,6 +5,11 @@
  *     sampleTimeLength: number,
  *     fftSize: number,
  *     }=} options
+ *           sampleTimeLength Interval in seconds at which to start each sample.
+ *               The duration of the audio file / sampleTimeLength = the number
+ *               of samples.
+ *           fftSize Integer, representing the window size of the FFT, given in
+ *               number of samples. Must be a power of 2 between 2^5 and 2^15.
  * @return {!Promise<!Array<!Uint8Array>>}  an array of frequency samples;
  *     each sample is a normalized array of decibel values between 0 and 255.
  *     The frequencies are spread linearly from 0 to 1/2 of the sample rate.
