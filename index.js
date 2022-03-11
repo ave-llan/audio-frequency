@@ -14,6 +14,8 @@
  *           maxFrequency Maximum frequency in hz to include in the results.
  *               Actual max will be
  *               min(audioFile sample rate / 2, maxFrequency).
+ *           smoothingTimeConstant A value from 0 -> 1 where 0 represents no
+ *               time averaging with the last analysis frame.
  * @return {!Promise<!Array<!Uint8Array>>}  an array of frequency samples;
  *     each sample is a normalized array of decibel values between 0 and 255.
  *     The frequencies are spread linearly from 0 to 1/2 of the sample rate.
@@ -23,6 +25,7 @@ async function getAudioFrequencyData(audioFile,
       sampleTimeLength = 1/60,
       fftSize = 2 ** 11,
       maxFrequency = 44100 / 2,
+      smoothingTimeConstant = 0.5,
     } = {}) {
   const audioContext = new AudioContext();
   return fetch(audioFile).then((response) => response.arrayBuffer())
@@ -42,6 +45,7 @@ async function getAudioFrequencyData(audioFile,
         const numSamples = Math.floor(
             audioBufferSource.buffer.duration / sampleTimeLength);
         analyser.fftSize = fftSize;
+        analyser.smoothingTimeConstant = smoothingTimeConstant;
 
         // Prep frequenyData array
         const frequencyData = new Array(numSamples);
@@ -53,7 +57,6 @@ async function getAudioFrequencyData(audioFile,
         for (let i = 0; i < numSamples; i++) {
           frequencyData[i] = new Uint8Array(frequencyBinCount);
         }
-
         return new Promise((resolve) => {
           for (let frameIndex = 0; frameIndex < numSamples; frameIndex++) {
             offlineContext.suspend(sampleTimeLength * frameIndex).then(() => {
