@@ -1,16 +1,40 @@
 module.exports = {
   'env': {
-    'browser': true,
-    'es2021': true,
-    'node': true,
+    'browser' : true,
+    'es2021'  : true
   },
-  'extends': [
-    'google',
-  ],
-  'parserOptions': {
-    'ecmaVersion': 'latest',
-    'sourceType': 'module',
+  'extends'       : 'eslint:recommended',
+  'parserOptions' : {
+    'ecmaVersion' : 'latest',
+    'sourceType'  : 'module'
   },
   'rules': {
-  },
-};
+    'indent': [
+      2,
+      2,
+      { 'ArrayExpression': 'first' }
+    ],
+    'key-spacing': [
+      1,
+      { 'align': {
+        'beforeColon' : true,
+        'afterColon'  : true,
+        'on'          : 'colon',
+        'mode'        : 'strict'
+      }
+      }
+    ],
+    'linebreak-style': [
+      2,
+      'unix'
+    ],
+    'quotes': [
+      2,
+      'single'
+    ],
+    'semi': [
+      2,
+      'never'
+    ]
+  }
+}
