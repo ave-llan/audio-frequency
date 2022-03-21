@@ -1,3 +1,29 @@
+class AudioData {
+  /**
+   * @param {!AudioBuffer} decodedData
+   */
+  constructor(audioBuffer) {
+    this.buffer = audioBuffer
+    this.length = audioBuffer.length 
+    this.duration = audioBuffer.duration
+    this.sampleRate = audioBuffer.sampleRate
+    this.numberOfChannels = audioBuffer.numberOfChannels
+  }
+
+  /**
+   * @param {string} audioFile path to audio file
+   * @return {!AudioData}
+   */
+  static async fromFile(audioFile) {
+    const response = await fetch(audioFile)
+    const arrayBuffer = await response.arrayBuffer()
+
+    const audioContext = new AudioContext()
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+    return new AudioData(audioBuffer)
+  }
+}
+
 /**
  * Returns audio frequency data for the given audio file.
  * @param {string} audioFile Path to audio file.
@@ -27,51 +53,47 @@ async function getAudioFrequencyData(audioFile,
     maxFrequency = 44100 / 2,
     smoothingTimeConstant = 0.5,
   } = {}) {
-  const audioContext = new AudioContext()
-  return fetch(audioFile).then((response) => response.arrayBuffer())
-    .then(async (buffer) => {
-      const decodedData = await audioContext.decodeAudioData(buffer,
-        (decodedData) => decodedData)
-      const offlineContext = new OfflineAudioContext(
-        decodedData.numberOfChannels,
-        decodedData.length,
-        decodedData.sampleRate)
-      const audioBufferSource = offlineContext.createBufferSource()
-      audioBufferSource.buffer = decodedData
+  const audioData = await AudioData.fromFile(audioFile)
+  const offlineContext = new OfflineAudioContext(
+    audioData.numberOfChannels,
+    audioData.length,
+    audioData.sampleRate)
+  const audioBufferSource = offlineContext.createBufferSource()
+  audioBufferSource.buffer = audioData.buffer
 
-      const analyser = offlineContext.createAnalyser()
-      audioBufferSource.connect(analyser)
-      // Math.floor((decodedData.sampleRate / 2) /
-      const numSamples = Math.floor(
-        audioBufferSource.buffer.duration / sampleTimeLength)
-      analyser.fftSize = fftSize
-      analyser.smoothingTimeConstant = smoothingTimeConstant
+  const analyser = offlineContext.createAnalyser()
+  audioBufferSource.connect(analyser)
+  // Math.floor((audioData.sampleRate / 2) /
+  const numSamples = Math.floor(
+    audioBufferSource.buffer.duration / sampleTimeLength)
+  analyser.fftSize = fftSize
+  analyser.smoothingTimeConstant = smoothingTimeConstant
 
-      // Prep frequenyData array
-      const frequencyData = new Array(numSamples)
-      const frequencyBandSize = (decodedData.sampleRate / 2) /
-          analyser.frequencyBinCount
-      const frequencyBinCount = Math.min(
-        analyser.frequencyBinCount,
-        Math.max(maxFrequency / frequencyBandSize))
-      for (let i = 0; i < numSamples; i++) {
-        frequencyData[i] = new Uint8Array(frequencyBinCount)
-      }
-      return new Promise((resolve) => {
-        for (let frameIndex = 0; frameIndex < numSamples; frameIndex++) {
-          offlineContext.suspend(sampleTimeLength * frameIndex).then(() => {
-            analyser.getByteFrequencyData(frequencyData[frameIndex])
-            offlineContext.resume()
-            // After populating last data, resolve promise.
-            if (frameIndex + 1 === numSamples) {
-              resolve(frequencyData)
-            }
-          })
+  // Prep frequenyData array
+  const frequencyData = new Array(numSamples)
+  const frequencyBandSize = (audioData.sampleRate / 2) /
+      analyser.frequencyBinCount
+  const frequencyBinCount = Math.min(
+    analyser.frequencyBinCount,
+    Math.max(maxFrequency / frequencyBandSize))
+  for (let i = 0; i < numSamples; i++) {
+    frequencyData[i] = new Uint8Array(frequencyBinCount)
+  }
+  return new Promise((resolve) => {
+    for (let frameIndex = 0; frameIndex < numSamples; frameIndex++) {
+      offlineContext.suspend(sampleTimeLength * frameIndex).then(() => {
+        analyser.getByteFrequencyData(frequencyData[frameIndex])
+        offlineContext.resume()
+        // After populating last data, resolve promise.
+        if (frameIndex + 1 === numSamples) {
+          resolve(frequencyData)
         }
-        offlineContext.startRendering()
-        audioBufferSource.start()
       })
-    })
+    }
+    offlineContext.startRendering()
+    audioBufferSource.start()
+  })  
+
 }
 
 export {getAudioFrequencyData}
