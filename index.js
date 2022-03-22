@@ -101,7 +101,7 @@ class AudioData {
       analyser.frequencyBinCount
     const frequencyBinCount = Math.min(
       analyser.frequencyBinCount,
-      Math.max(maxFrequency / frequencyBandSize))
+      Math.ceil(maxFrequency / frequencyBandSize))
     for (let i = 0; i < numSamples; i++) {
       frequencyData[i] = new Uint8Array(frequencyBinCount)
     }
