@@ -6,7 +6,9 @@ class FrequencyData {
    *     minFrequency: number,
    *     maxFrequency: number,
    *     frequencyBandSize: number,
-   *     frequencyBinCount: number
+   *     frequencyBinCount: number,
+   *     sampleTimeLength: number,
+   *     duration: number,
    *     }} params
    */
   constructor({
@@ -15,16 +17,32 @@ class FrequencyData {
     maxFrequency,
     frequencyBandSize,
     frequencyBinCount,
+    sampleTimeLength,
+    duration,
   }) {
     this.data = data
     this.minFrequency = minFrequency
     this.maxFrequency =    maxFrequency
     this.frequencyBandSize = frequencyBandSize
     this.frequencyBinCount = frequencyBinCount
+    this.sampleTimeLength = sampleTimeLength
+    this.duration = duration
   }
 
+  /**
+   * @param {number} binIndex
+   * @return {number} Frequency at the given bin index.
+   */
   frequencyAtBin(binIndex) {
     return this.minFrequency + (this.frequencyBandSize * binIndex)
+  }
+
+  /**
+   * @param {number} binIndex
+   * @return {number} Timestamp (in seconds) at the given sample index.
+   */
+  timeAtSample(sampleIndex) {
+    return sampleIndex * this.sampleTimeLength
   }
 }
 
@@ -96,6 +114,7 @@ class AudioData {
     analyser.smoothingTimeConstant = smoothingTimeConstant
 
     // Prep frequencyData array
+    maxFrequency = Math.min(this.sampleRate / 2, maxFrequency)
     const frequencyData = new Array(numSamples)
     const frequencyBandSize = (this.sampleRate / 2) /
       analyser.frequencyBinCount
@@ -118,6 +137,7 @@ class AudioData {
               maxFrequency,
               frequencyBandSize,
               frequencyBinCount,
+              sampleTimeLength,
             }))
           }
         })
@@ -162,4 +182,4 @@ async function getAudioFrequencyData(audioFile,
   return frequencyData.data
 }
 
-export {getAudioFrequencyData}
+export {AudioData, getAudioFrequencyData}
