@@ -1,3 +1,33 @@
+
+class FrequencyData {
+  /**
+   * @param {{
+   *     data: !Array<!Uint8Array>
+   *     minFrequency: number,
+   *     maxFrequency: number,
+   *     frequencyBandSize: number,
+   *     frequencyBinCount: number
+   *     }} params
+   */
+  constructor({
+    data,
+    minFrequency,
+    maxFrequency,
+    frequencyBandSize,
+    frequencyBinCount,
+  }) {
+    this.data = data
+    this.minFrequency = minFrequency
+    this.maxFrequency =    maxFrequency
+    this.frequencyBandSize = frequencyBandSize
+    this.frequencyBinCount = frequencyBinCount
+  }
+
+  frequencyAtBin(binIndex) {
+    return this.minFrequency + (this.frequencyBandSize * binIndex)
+  }
+}
+
 class AudioData {
   /**
    * @param {!AudioBuffer} decodedData
@@ -65,7 +95,7 @@ class AudioData {
     analyser.fftSize = fftSize
     analyser.smoothingTimeConstant = smoothingTimeConstant
 
-    // Prep frequenyData array
+    // Prep frequencyData array
     const frequencyData = new Array(numSamples)
     const frequencyBandSize = (this.sampleRate / 2) /
       analyser.frequencyBinCount
@@ -82,7 +112,13 @@ class AudioData {
           offlineContext.resume()
           // After populating last data, resolve promise.
           if (frameIndex + 1 === numSamples) {
-            resolve(frequencyData)
+            resolve(new FrequencyData({
+              data         : frequencyData,
+              minFrequency : 0,
+              maxFrequency,
+              frequencyBandSize,
+              frequencyBinCount,
+            }))
           }
         })
       }
@@ -122,7 +158,8 @@ async function getAudioFrequencyData(audioFile,
     smoothingTimeConstant = 0.5,
   } = {}) {
   const audioData = await AudioData.fromFile(audioFile)
-  return audioData.getFrequencyData({sampleTimeLength, fftSize, maxFrequency, smoothingTimeConstant})
+  const frequencyData = await audioData.getFrequencyData({sampleTimeLength, fftSize, maxFrequency, smoothingTimeConstant})
+  return frequencyData.data
 }
 
 export {getAudioFrequencyData}
