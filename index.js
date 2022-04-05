@@ -107,7 +107,6 @@ class AudioData {
 
     const analyser = offlineContext.createAnalyser()
     audioBufferSource.connect(analyser)
-    // Math.floor((audioData.sampleRate / 2) /
     const numSamples = Math.floor(
       audioBufferSource.buffer.duration / sampleTimeLength)
     analyser.fftSize = fftSize
