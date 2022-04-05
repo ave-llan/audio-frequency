@@ -181,6 +181,7 @@ class AudioData {
               frequencyBandSize,
               frequencyBinCount,
               sampleTimeLength,
+              duration     : audioBufferSource.buffer.duration,
             }))
           }
         })
