@@ -20,12 +20,56 @@ class FrequencyData {
     sampleTimeLength,
     duration,
   }) {
+
+    /**  
+     *  An array of frequency samples; each sample is a normalized array of decibel 
+     *  values between 0 and 255. The frequencies are spread linearly from 0 to 1/2 
+     *  of the sample rate.
+     *  @type {!Array<!Uint8Array>}
+     *  @public
+     */ 
     this.data = data
+
+    /**
+     * The min frequency used for analysis (lowest frequency bucket in {@link FrequencyData#data}).
+     * @type {number}
+     * @public
+     */
     this.minFrequency = minFrequency
+
+    /**
+     * The max frequency used for analysis (highest frequency bucket in {@link FrequencyData#data}).
+     * @type {number}
+     * @public
+     */
     this.maxFrequency =    maxFrequency
+
+    /**
+     * The frequency covered in each bin in {@link FrequencyData#data}).
+     * @type {number}
+     * @public
+     */
     this.frequencyBandSize = frequencyBandSize
+
+    /**
+     * Number of frequency bins for each time sample in {@link FrequencyData#data}).
+     * @type {number}
+     * @public
+     */
     this.frequencyBinCount = frequencyBinCount
+
+    /**
+     * Length of each individual sample in {@link FrequencyData#data}) in seconds.
+     * @type {number}
+     * @public
+     */
     this.sampleTimeLength = sampleTimeLength
+
+    /**
+     * Total length of {@link FrequencyData#data}) in seconds.
+     * @type {number}
+     * @public
+     */
     this.duration = duration
   }
 
@@ -165,7 +209,7 @@ class AudioData {
  *               min(audioFile sample rate / 2, maxFrequency).
  *           smoothingTimeConstant A value from 0 -> 1 where 0 represents no
  *               time averaging with the last analysis frame.
- * @return {!Promise<!Array<!Uint8Array>>}  an array of frequency samples;
+ * @return {!Promise<!FrequencyData>}  an array of frequency samples;
  *     each sample is a normalized array of decibel values between 0 and 255.
  *     The frequencies are spread linearly from 0 to 1/2 of the sample rate.
  */
