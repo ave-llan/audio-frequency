@@ -132,7 +132,7 @@ class AudioData {
    *               min(audioFile sample rate / 2, maxFrequency).
    *           smoothingTimeConstant A value from 0 -> 1 where 0 represents no
    *               time averaging with the last analysis frame.
-   * @return {!Promise<!Array<!Uint8Array>>}  an array of frequency samples;
+   * @return {!Promise<!Array<!FrequencyData>>}  an array of frequency samples;
    *     each sample is a normalized array of decibel values between 0 and 255.
    *     The frequencies are spread linearly from 0 to 1/2 of the sample rate.
    */
