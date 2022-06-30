@@ -107,11 +107,14 @@ class AudioData {
    * @return {!AudioData}
    */
   static async fromFile(audioFile) {
+    performance.mark('decodeAudioFromFile')
     const response = await fetch(audioFile)
     const arrayBuffer = await response.arrayBuffer()
 
     const audioContext = new AudioContext()
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+
+    console.log(performance.measure('decodeAudioFromFile'))
     return new AudioData(audioBuffer)
   }
 
@@ -142,6 +145,8 @@ class AudioData {
     maxFrequency = 44100 / 2,
     smoothingTimeConstant = 0.5,
   } = {}) {
+    performance.mark('getFrequencyData')
+
     const offlineContext = new OfflineAudioContext(
       this.numberOfChannels,
       this.length,
@@ -183,6 +188,7 @@ class AudioData {
               sampleTimeLength,
               duration     : audioBufferSource.buffer.duration,
             }))
+            console.log(performance.measure('getFrequencyData'))
           }
         })
       }
